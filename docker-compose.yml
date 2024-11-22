@@ -1,0 +1,22 @@
+services:
+  tts-api:
+    build: ./
+    restart: unless-stopped
+    env_file:
+      - ./.env
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.tts-api-route.rule=Host(`tts.prismaforge.ng`)
+      - traefik.http.routers.tts-api-route.tls=true
+      - traefik.http.routers.tts-api-route.tls.certresolver=myresolver
+      - traefik.http.routers.tts-api-route.middlewares=https-redirect@docker
+      - traefik.http.services.tts-api.loadbalancer.server.port=3000
+      - traefik.http.routers.tts-api-http-to-https.rule=Host(`api.prismaforge.ng`)
+      - traefik.http.routers.tts-api-http-to-https.entrypoints=web
+      - traefik.http.routers.tts-api-http-to-https.middlewares=https-redirect
+    networks:
+      - ddld-net
+
+networks:
+  ddld-net:
+    external: true
